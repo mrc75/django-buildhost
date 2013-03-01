@@ -41,7 +41,8 @@ def as_bool(value, default):
     else:
         return bool(value)
 
-def _upload_template( name, dest, **kwargs ):
+
+def _upload_template(name, dest, **kwargs):
     tpl_dir = kwargs.pop('template_dir', env.template_dir)
     upload_template(name % env, dest % env, env, use_jinja=True, template_dir=tpl_dir, **kwargs)
 
