@@ -44,14 +44,16 @@ def init_env():
     sudo('chown %(user)s:%(group)s %(PREFIX)s' % env)
     sudo('chown %(user)s:%(group)s %(packages_cache)s' % env)
     sudo('chown %(user)s:%(group)s %(pip_cache)s' % env)
+    sudo('chown %(user)s:%(group)s %(PREFIX)s/sbin' % env)
 
     sudo('chmod g+rw,o-rw %(PREFIX)s' % env)
     sudo('chmod g+rw,o-rw %(pip_cache)s' % env)
     sudo('chmod g+rw,o-rw %(packages_cache)s' % env)
+    sudo('chmod g+rw,o-rw %(PREFIX)s/sbin' % env)
 
-    copy_packages()
-    install_libraries()
-    upload_common_task()
+    # copy_packages()
+    # install_libraries()
+    # upload_common_task()
 
 
 @task
@@ -89,13 +91,13 @@ def user_create(admin, password='123'):
 
     if not contains("/etc/passwd", "^%s:" % admin):
         with settings(admin=admin):
-            sudo('useradd -g %(group)s %(admin)s -M -g %(group)s' % env )
+            sudo('useradd -g %(group)s %(admin)s -M -g %(group)s' % env)
     else:
         out = sudo('groups %s' % admin)
-        assert re.search(r"\%(group)s\b" % env, out) # check the user in pasport group
+        assert re.search(r"\%(group)s\b" % env, out)  # check the user in pasport group
 
     setup_env_for_user(admin)
-    user_setup( admin, password )
+    user_setup(admin, password)
 
 @task
 def user_remove(admin):

@@ -1,5 +1,6 @@
-=====
-=====
+================
+Django Buildhost
+================
 
 
 
@@ -18,3 +19,10 @@ fab root.create_user:<USERNAME>,[<PASSWORD>]
 fab -H <USERNAME>@<HOST> user.init_home_env:<PORT>
 
 fab -H <USERNAME>@<HOST> system.sqlite system.python system.apache
+
+
+
+Examples
+--------
+
+fab -H user@host system.sqlite system.python system.modwsgi system.oracle system.sqlplus system.apache
