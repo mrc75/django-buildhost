@@ -7,7 +7,7 @@ alias cp="cp -i"
 alias mv="mv -i"
 alias ll="ls -al"
 alias env="env | sort"
-alias checklog='tail -f logs/* logs/pasport/* logs/oracle/*'
+alias checklog='tail -f logs/*.log logs/pasport/*.log logs/oracle/*'
 
 
 # Source global definitions
