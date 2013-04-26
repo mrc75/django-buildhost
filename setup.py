@@ -52,5 +52,6 @@ setup(
     data_files=data_files,
     platforms=['any'],
     classifiers=[],
-    long_description=open('README').read()
+    long_description=open('README').read(),
+    install_requires=['Fabric',],
 )
