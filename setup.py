@@ -53,5 +53,5 @@ setup(
     platforms=['any'],
     classifiers=[],
     long_description=open('README').read(),
-    install_requires=['Fabric',],
+    install_requires=['Fabric', 'Jinja2',],
 )
