@@ -132,13 +132,14 @@ def sqlplus():
     run('rm -fr ~/~build/sqlplus')
     run('mkdir -p ~/~build/sqlplus')
     with settings(tar=tar):
-        put('%(tarballs)s/%(tar)s' % env, '~/~build/sqlplus/')
+        # put('%(tarballs)s/%(tar)s' % env, '~/~build/sqlplus/')
+        run('cp %(packages_cache)s/%(tar)s' % env, '~/~build/sqlplus/')
     with cd('~/~build/sqlplus'):
         run('ls')
         run('unzip %s' % tar)
         run('cp instantclient_11_2/* ~/oracle/instantclient_11_2/')
         run('mv ~/oracle/instantclient_11_2/sqlplus ~/bin/sqlplus')
-    run('sqlplus  -V') # simple check
+    run('sqlplus  -V')  # simple check
 
 
 @task
@@ -166,7 +167,7 @@ def oracle():
                 env.oracle_home = '%(base)s/oracle/instantclient_11_2' % env
                 run('ln -sf libclntsh.so.11.1 libclntsh.so')
 
-    assert exists('%(oracle_home)s/libclntsh.so' % env)
+    assert exists('%(oracle_home)s/libclntsh.so' % env, verbose=True)
     run('pip install cx_Oracle')
     run('mkdir ~/logs/oracle')
     run('ln -s ~/logs/oracle %(base)s/oracle/instantclient_11_2/log' % env)
