@@ -133,7 +133,7 @@ def sqlplus():
     run('mkdir -p ~/~build/sqlplus')
     with settings(tar=tar):
         # put('%(tarballs)s/%(tar)s' % env, '~/~build/sqlplus/')
-        run('cp %(packages_cache)s/%(tar)s' % env, '~/~build/sqlplus/')
+        run('cp %(packages_cache)s/%(tar)s ~/~build/sqlplus/' % env)
     with cd('~/~build/sqlplus'):
         run('ls')
         run('unzip %s' % tar)
