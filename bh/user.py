@@ -35,4 +35,11 @@ def bin_utils(port=None):
     run('chmod ug+x %(base)s/bin/*' % env)
 
 
-
+@task
+def set_ssh():
+    run('chmod go-wrx ~')
+    run('mkdir -p ~/.ssh')
+    run('chmod -R 700 ~/.ssh')
+    run('touch ~/.ssh/authorized_keys')
+    run('chmod og-rw ~/.ssh/authorized_keys')
+    run('chmod a-x ~/.ssh/authorized_keys')
