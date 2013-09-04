@@ -27,4 +27,4 @@ fab -H <USERNAME>@<HOST> bh.system.sqlite bh.system.python bh.system.apache bh.s
 Examples
 --------
 
-fab -H user@host system.sqlite system.python system.apache system.modwsgi system.oracle system.sqlplus
+fab -H user@host bh.system.sqlite bh.system.python bh.system.apache bh.system.modwsgi bh.system.oracle bh.system.sqlplus
