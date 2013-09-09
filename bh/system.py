@@ -12,7 +12,7 @@ def python():
     setup_env_for_user(env.user)
     with cd('%(packages_cache)s' % env):
         if not exists('Python-%(PYTHON)s.tgz' % env):
-            run('wget http://www.python.org/ftp/python/2.7.3/Python-%(PYTHON)s.tgz' % env)
+            run('wget http://www.python.org/ftp/python/%(PYTHON)s/Python-%(PYTHON)s.tgz' % env)
 
     version = env.PYTHON.replace('Python-', '')
     run('mkdir -p %(admin_home_dir)s/~build' % env)
