@@ -49,24 +49,24 @@ def apache():
     with cd(env.build):
         run('tar -xzf %(packages_cache)s/%(APACHE)s.tar.gz' % env)
         with cd(env.APACHE):
-            run('./configure '\
-                ' --prefix=%(base)s'\
-                ' --exec_prefix=%(base)s'\
-                ' --bindir=%(base)s/bin'\
-                ' --sbindir=%(base)s/bin'\
-                ' --libexecdir=%(base)s/lib/apache'\
-                ' --mandir=%(base)s/man'\
-                ' --sysconfdir=%(base)s/etc/httpd/conf'\
-                ' --datadir=%(base)s/var/www'\
-                ' --includedir=%(base)s/lib/include/apache'\
-                ' --localstatedir=%(base)s/var/run'\
-                ' --enable-rewrite'\
-                ' --enable-headers'\
-                #                ' --enable-rewrite=shared'\
-                #                ' --enable-mods-shared=most'\
-                ' --with-included-apr'\
+            run('./configure '
+                ' --prefix=%(base)s'
+                ' --exec_prefix=%(base)s'
+                ' --bindir=%(base)s/bin'
+                ' --sbindir=%(base)s/bin'
+                ' --libexecdir=%(base)s/lib/apache'
+                ' --mandir=%(base)s/man'
+                ' --sysconfdir=%(base)s/etc/httpd/conf'
+                ' --datadir=%(base)s/var/www'
+                ' --includedir=%(base)s/lib/include/apache'
+                ' --localstatedir=%(base)s/var/run'
+                ' --enable-rewrite'
+                ' --enable-headers'
+                # ' --enable-rewrite=shared'
+                # ' --enable-mods-shared=most'
+                ' --with-included-apr'
                 ' --enable-ssl'
-            % env)
+                % env)
             run('make clean')
             run('make')
             run('make install')
@@ -75,7 +75,6 @@ def apache():
 @task
 def sqlite():
     setup_env_for_user(env.user)
-
 
     run('mkdir -p %(admin_home_dir)s/~build' % env)
     with cd('%(packages_cache)s' % env):
@@ -86,11 +85,11 @@ def sqlite():
         run('tar -xzf %(packages_cache)s/%(SQLITE)s.tar.gz' % env)
         run('ls -al')
         with cd(env.SQLITE):
-            run('./configure '\
-                ' --prefix=%(base)s'\
-                ' --exec_prefix=%(base)s'\
-                ' --bindir=%(base)s/bin'\
-                ' --sbindir=%(base)s/bin' % env )
+            run('./configure '
+                ' --prefix=%(base)s'
+                ' --exec_prefix=%(base)s'
+                ' --bindir=%(base)s/bin'
+                ' --sbindir=%(base)s/bin' % env)
             run('make')
             run('make install')
             run('sqlite3 -version')
@@ -127,6 +126,8 @@ def modwsgi():
 
 @task
 def sqlplus():
+    """Unpack sqlplus. FIXME broken task. not sqlplus is also handled by the oracle() task"""
+
     setup_env_for_user(env.user)
     tar = env.deps['sqlplus']
     run('rm -fr ~/~build/sqlplus')
@@ -136,15 +137,15 @@ def sqlplus():
         run('cp %(packages_cache)s/%(tar)s ~/~build/sqlplus/' % env)
     with cd('~/~build/sqlplus'):
         run('ls')
-        run('unzip %s' % tar)
-        run('cp instantclient_11_2/* ~/oracle/instantclient_11_2/')
+        # run('unzip %s' % tar)
+        # run('cp instantclient_11_2/* ~/oracle/instantclient_11_2/')
         run('mv ~/oracle/instantclient_11_2/sqlplus ~/bin/sqlplus')
-    run('sqlplus  -V')  # simple check
+    run('sqlplus -V')  # simple check
 
 
 @task
 def oracle():
-    """ compile and install oracle drivers
+    """ compile and install oracle drivers and SQLPLUS
     """
     setup_env_for_user(env.user)
     with cd('%(packages_cache)s' % env):
@@ -153,7 +154,6 @@ def oracle():
             if not 'instantclient' in c:
                 put('%(tarball_dir)s/instantclient-*' % env, env.packages_cache)
 
-    run('mkdir -p %(admin_home_dir)s/~build' % env)
     with cd(env.base):
         run('rm -fr oracle*')
         run('mkdir -p oracle')
@@ -163,16 +163,24 @@ def oracle():
                 run('find %(packages_cache)s -name "instantclient*86-64*" -exec unzip "{}" \;' % env)
             elif arch == 'i386':
                 run('find %(packages_cache)s -name "instantclient*" -not -name "*86-64*" -exec unzip "{}" \;' % env)
+
             with cd('instantclient_*'):
                 env.oracle_home = '%(base)s/oracle/instantclient_11_2' % env
                 run('ln -sf libclntsh.so.11.1 libclntsh.so')
 
+                # SQLPLUS
+                out = run('mv sqlplus ~/bin/sqlplus', warn_only=True)
+                if out.failed:
+                    print(red('Cannot copy SQLPLUS'))
+                else:
+                    run('sqlplus -V')  # simple check
+
     assert exists('%(oracle_home)s/libclntsh.so' % env, verbose=True)
     run('pip install cx_Oracle')
-    run('mkdir ~/logs/oracle')
+    run('mkdir -p ~/logs/oracle')
     run('ln -s ~/logs/oracle %(base)s/oracle/instantclient_11_2/log' % env)
     # test
-    out = run('python -c "import cx_Oracle;print(222)"')
+    out = run('python -c "import cx_Oracle; print(222)"')
     assert out.startswith("222")
 
 
@@ -193,7 +201,6 @@ def ngnix(recover=False, configure=True, make=True, install=True):
         if not exists('%(packages_cache)s/%(UWSGI)s.tar.gz' % env):
             run("wget http://projects.unbit.it/downloads/%(UWSGI)s.tar.gz" % env)
 
-
     with cd(env.build):
         run("tar -xzf %(packages_cache)s/%(NGINX)s.tar.gz" % env)
         run("tar -xzf %(packages_cache)s/pcre-%(PCRE)s.tar.gz" % env)
@@ -201,33 +208,33 @@ def ngnix(recover=False, configure=True, make=True, install=True):
 
         with cd(env.NGINX):
             if _configure:
-                run("./configure --prefix=%(base)s"\
-                    " --sbin-path=%(base)s/bin"\
-                    " --pid-path=%(base)s/run/nginx.pid"\
-                    " --lock-path=%(base)s/run/nginx.lck"\
-                    " --user=nginx"\
-                    " --group=%(group)s"\
-                    " --with-debug "\
-                    #                " --with-google_perftools_module"\
-                    " --with-select_module"\
-                    " --with-http_ssl_module"\
-                    " --with-http_gzip_static_module"\
-                    " --with-http_stub_status_module"\
-                    " --with-http_realip_module"\
-                    " --with-http_ssl_module"\
-                    " --with-http_sub_module"\
-                    " --with-http_addition_module"\
-                    " --with-http_flv_module"\
-                    " --with-http_addition_module"\
-                    " --with-file-aio"\
-                    " --with-sha1-asm"\
-                    " --http-proxy-temp-path=%(base)s/tmp/proxy/"\
-                    " --http-client-body-temp-path=%(base)s/tmp/client/"\
-                    " --http-fastcgi-temp-path=%(base)s/tmp/fcgi/"\
-                    " --http-uwsgi-temp-path=%(base)s/tmp/uwsgi/"\
-                    " --http-scgi-temp-path=%(base)s/tmp/scgi/"\
-                    " --http-log-path=%(base)s/logs/nginx/access.log"\
-                    " --error-log-path=%(base)s/logs/nginx/error.log"\
+                run("./configure --prefix=%(base)s"
+                    " --sbin-path=%(base)s/bin"
+                    " --pid-path=%(base)s/run/nginx.pid"
+                    " --lock-path=%(base)s/run/nginx.lck"
+                    " --user=nginx"
+                    " --group=%(group)s"
+                    " --with-debug "
+                    # " --with-google_perftools_module"\
+                    " --with-select_module"
+                    " --with-http_ssl_module"
+                    " --with-http_gzip_static_module"
+                    " --with-http_stub_status_module"
+                    " --with-http_realip_module"
+                    " --with-http_ssl_module"
+                    " --with-http_sub_module"
+                    " --with-http_addition_module"
+                    " --with-http_flv_module"
+                    " --with-http_addition_module"
+                    " --with-file-aio"
+                    " --with-sha1-asm"
+                    " --http-proxy-temp-path=%(base)s/tmp/proxy/"
+                    " --http-client-body-temp-path=%(base)s/tmp/client/"
+                    " --http-fastcgi-temp-path=%(base)s/tmp/fcgi/"
+                    " --http-uwsgi-temp-path=%(base)s/tmp/uwsgi/"
+                    " --http-scgi-temp-path=%(base)s/tmp/scgi/"
+                    " --http-log-path=%(base)s/logs/nginx/access.log"
+                    " --error-log-path=%(base)s/logs/nginx/error.log"
                     " --with-pcre=../pcre-8.20" % env
                 )
             if _make:
@@ -243,13 +250,13 @@ def check():
     setup_env_for_user()
 
     def _test(cmd, where):
-        print 'Checking `%s`..' % cmd,
+        print('Checking `%s`..' % cmd),
         with settings(warn_only=True):
             out = run(cmd)
             if out.startswith(where):
-                print green('Ok')
+                print(green('Ok'))
             else:
-                print red("FAIL!!"), out
+                print(red("FAIL!!"), out)
 
     puts('Checking installation...')
 
@@ -264,10 +271,10 @@ def check():
         _test('python -c "import cx_Oracle;print(\'cx_Oracle imported\')"', 'cx_Oracle imported')
         _test('python -c "import socket;print socket.ssl"', '<function ssl at')
 
-        print 'Checking $PATH..',
+        print('Checking $PATH..'),
         out = run('echo $PATH')
         assert out.startswith("%(base)s/bin:%(base)s/apache/bin" % env), out
-        print green('Ok (%s)' % out)
+        print(green('Ok (%s)' % out))
 
 
 @task
@@ -277,21 +284,24 @@ def copy_cmds():
     upload_template("tpls/sbin/all_env_command.sh", "%(PREFIX)s/sbin" % env, env, use_jinja=True)
     run('chmod +x %(PREFIX)s/sbin/*.sh' % env)
 
+
 @task
 def openldap():
     setup_env_for_user(env.user)
-    run('mkdir -p %(build)s' % env )
+    run('mkdir -p %(build)s' % env)
     with cd(env.build):
-#        run('wget ftp://ftp.openldap.org/pub/OpenLDAP/openldap-release/openldap-2.4.9.tgz')
+        # run('wget ftp://ftp.openldap.org/pub/OpenLDAP/openldap-release/openldap-2.4.9.tgz')
         run('tar xzvf openldap-2.4.9.tgz')
         with cd('openldap-2.4.9'):
             run('./configure --prefix=%(base)s' % env)
             run('make')
             run('make install')
+
+
 @task
 def postgresql():
     setup_env_for_user(env.user)
-    run('mkdir -p %(build)s' % env )
+    run('mkdir -p %(build)s' % env)
     with cd(env.build):
         if not exists('postgresql-%(POSTGRES)s.tar.bz2' % env):
             run('wget http://ftp.postgresql.org/pub/source/v%(POSTGRES)s/postgresql-%(POSTGRES)s.tar.bz2' % env)
@@ -303,6 +313,7 @@ def postgresql():
             run('make install')
         run('rm -fr postgresql-%(POSTGRES)s' % env)
 
+
 @task
 def install():
     """ install all required servers/appliance
@@ -311,9 +322,8 @@ def install():
     """
     setup_env_for_user(env.user)
     execute(python)
-#    execute(apache)
-#    execute(modwsgi)
-
-#    execute(oracle)
-#    execute(uwsgi)
-#    execute(ngnix)
+    # execute(apache)
+    # execute(modwsgi)
+    # execute(oracle)
+    # execute(uwsgi)
+    # execute(ngnix)

@@ -3,9 +3,11 @@ from fabric.api import *
 import os
 from fabric.contrib.files import exists, upload_template
 import sys
-PASSWORD_FILE='~/.credentials.json'
+
+PASSWORD_FILE = '~/.credentials.json'
 
 get_home_dir = lambda username: os.path.join(env.PREFIX, username)
+
 
 def load_password(filename=PASSWORD_FILE):
     try:
@@ -13,11 +15,13 @@ def load_password(filename=PASSWORD_FILE):
     except IOError:
         pass
 
+
 def save_password(filename=PASSWORD_FILE):
     try:
         json.dump(env.passwords, open(os.path.expanduser(filename), 'w'), indent=3)
     except IOError:
         pass
+
 
 def init():
     env.packages_cache = "%s/packages_cache" % env.PREFIX
@@ -67,13 +71,14 @@ def pip_install(pkg, upgrade=False, mask='"%s"'):
     with settings(pkgs=pkgs, upgrade=up, alaska='http://wfpdevel:wfpdevel@alaska.k-tech.it/pypi/pasportng/'):
         run('pip install %(upgrade)s -f %(pypi)s -f %(alaska)s %(pkgs)s' % env)
 
+
 def check_no_pending_commit(package, halt=True, forceto=''):
     package_dir = os.path.realpath(os.path.join(os.path.dirname(package.__file__)))
     product_dir = os.path.join(package_dir, os.pardir)
     if halt:
-        exit_func=sys.exit
+        exit_func = sys.exit
     else:
-        exit_func = lambda x:x
+        exit_func = lambda x: x
     if os.path.isfile(os.path.join(product_dir, 'setup.py')):
         with lcd(product_dir):
             with hide('running', 'stdout', 'stderr'):
@@ -83,7 +88,7 @@ def check_no_pending_commit(package, halt=True, forceto=''):
                         print 'Uncommitted files on ', product_dir
                         print r
                         exit_func(1)
-                elif os.path.exists(os.path.join(product_dir, '.git')) or forceto=='git':
+                elif os.path.exists(os.path.join(product_dir, '.git')) or forceto == 'git':
                     r = local('git status -s', True)
                     if r != "":
                         print 'Uncommitted files on ', product_dir

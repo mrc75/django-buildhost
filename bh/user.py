@@ -19,7 +19,7 @@ def init_home_env(base_port):
     _upload_template("home/bashrc", "%(base)s/.bashrc")
     _upload_template("home/bash_profile", "%(base)s/.bash_profile")
     _upload_template("home/django_bash_completion", "%(base)s/.django_bash_completion")
-#    _upload_template("httpd.conf", "%(base)s/etc/httpd/conf/httpd.conf")
+    # _upload_template("httpd.conf", "%(base)s/etc/httpd/conf/httpd.conf")
     bin_utils(env.http_port)
 
 
@@ -37,7 +37,7 @@ def bin_utils(port=None):
 
 @task
 def set_ssh():
-    run('chmod go-wrx ~')
+    run('chmod 750 ~')
     run('mkdir -p ~/.ssh')
     run('chmod -R 700 ~/.ssh')
     run('touch ~/.ssh/authorized_keys')
