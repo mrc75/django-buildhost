@@ -26,5 +26,9 @@ fab -H <USERNAME>@<HOST> bh.system.sqlite bh.system.python bh.system.apache bh.s
 
 Examples
 --------
+fab -H sudoer@hostname bh.root.init_env
 
+fab -H sudoer@hostname bh.root.user_create:<USERNAME>,[<PASSWORD>]
+
+fab -H <USERNAME>@<HOST> bh.user.init_home_env:<PORT>
 fab -H user@host bh.system.sqlite bh.system.python bh.system.apache bh.system.modwsgi bh.system.oracle
