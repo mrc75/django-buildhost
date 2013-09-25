@@ -5,24 +5,30 @@ from fabric.api import *
 from fabric.contrib.files import contains, exists
 from bh.utils import _upload_template, setup_env_for_user
 
+
 @task
 def du():
     run('for x in `ls %(PREFIX)s`;do test -e "%(PREFIX)s/$x/.bashrc" && du -sh %(PREFIX)s/$x; done' % env)
     run('df -h')
 
+
 @task
 def clear():
-    run('for x in `ls %(PREFIX)s`;do test -e "%(PREFIX)s/$x/.bashrc" && rm -fr %(PREFIX)s/$x/logs/* %(PREFIX)s/$x/~*; done' % env)
+    run('for x in `ls %(PREFIX)s`;do test -e "%(PREFIX)s/$x/.bashrc" && '
+        'rm -fr %(PREFIX)s/$x/logs/* %(PREFIX)s/$x/~*; done' % env)
+
 
 @task
 def allenv(cmd):
     with settings(xcmd=cmd):
         print('%(PREFIX)s/sbin/all_env_shell.sh %(xcmd)s' % env)
 
+
 @task
 def allenv(cmd):
     with settings(xcmd=cmd):
         print('%(PREFIX)s/sbin/all_env_shell.sh %(xcmd)s' % env)
+
 
 @task
 def init_env():
@@ -34,7 +40,7 @@ def init_env():
         - install all required libraries/sources
 
     """
-    if not contains("/etc/group", r"^%(group)s:x" % env, escape=False ):
+    if not contains("/etc/group", r"^%(group)s:x" % env, escape=False):
         sudo('groupadd %(group)s' % env)
 
     sudo('mkdir -p %(pip_cache)s' % env)
@@ -65,11 +71,13 @@ def install_libraries():
     else:
         ubuntu_prereq()
 
+
 @task
 def list_instances():
     """ list available pasport instances
     """
     run('for x in `ls %(PREFIX)s`;do test -e "%(PREFIX)s/$x/.bashrc" && echo $x; done' % env)
+
 
 @task
 def reset_host():
@@ -77,11 +85,12 @@ def reset_host():
     """
     out = sudo('ls -ld %(PREFIX)s' % env)
     perms, _, owner, group, _, _, _, _, name = out.split()
-    if (group != env.group) or not 'pasport' in name: # simple check to avoi mistakes
-        print "Error"
+    if (group != env.group) or not 'pasport' in name:  # simple check to avoid mistakes
+        print('Error')
         return
     sudo('getent group pasport')
     #sudo('rm -fr %(PREFIX)s/*' % env)
+
 
 @task
 def user_create(admin, password='123'):
@@ -99,6 +108,7 @@ def user_create(admin, password='123'):
     setup_env_for_user(admin)
     user_setup(admin, password)
 
+
 @task
 def user_remove(admin):
     """ create a user
@@ -107,6 +117,7 @@ def user_remove(admin):
     setup_env_for_user(admin)
     run('userdel %s' % admin)
     run('rm -fr %(admin_home_dir)s' % env)
+
 
 @task
 def user_setup(admin, password='123'):
@@ -163,11 +174,11 @@ def _redhat_prereq():
 def copy_packages():
     """ copy local source code tarball to remote machine
     """
-#    for source, dest in [(env.local_tarball , env.packages_cache), ('pip_cache', env.pip_cache)]:
+    #    for source, dest in [(env.local_tarball , env.packages_cache), ('pip_cache', env.pip_cache)]:
     if not exists(env.packages_cache):
         run('mkdir -p %(packages_cache)s' % env)
 
-    for source, dest in [(env.local_tarball , env.packages_cache), ]:
+    for source, dest in [(env.local_tarball, env.packages_cache), ]:
         with lcd(source):
             packages = local('ls *', True)
             for p in packages.split('\n'):
@@ -177,14 +188,9 @@ def copy_packages():
                         local('scp %(p)s %(user)s@%(host)s:%(dest)s/' % env)
 
 
-
 @task
 def upload_common_task():
     _upload_template("sbin/all_env_command.sh", "%(PREFIX)s/sbin/all_env_command.sh" % env)
     _upload_template("sbin/cronhandler.sh", "%(PREFIX)s/sbin/cronhandler.sh" % env)
     run('chmod ugo+x-rw %(PREFIX)s/sbin' % env)
     run('chmod ugo-rw,o-rw+x %(PREFIX)s/sbin/*' % env)
-
-
-
-
