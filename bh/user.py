@@ -43,3 +43,6 @@ def set_ssh():
     run('touch ~/.ssh/authorized_keys')
     run('chmod og-rw ~/.ssh/authorized_keys')
     run('chmod a-x ~/.ssh/authorized_keys')
+
+    host = '%(user)s@%(host)s' % env
+    local('ssh-copy-id -i ~/.ssh/id_rsa.pub %s' % host)
