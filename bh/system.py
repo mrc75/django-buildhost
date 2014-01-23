@@ -79,7 +79,7 @@ def sqlite():
     run('mkdir -p %(admin_home_dir)s/~build' % env)
     with cd('%(packages_cache)s' % env):
         if not exists('%(SQLITE)s.tar.gz' % env):
-            run('wget http://fossies.org/unix/misc/%(SQLITE)s.tar.gz' % env)
+            run('wget http://fossies.org/linux/misc/%(SQLITE)s.tar.gz' % env)
 
     with cd(env.build):
         run('tar -xzf %(packages_cache)s/%(SQLITE)s.tar.gz' % env)

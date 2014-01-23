@@ -115,8 +115,8 @@ def user_remove(admin):
 
     """
     setup_env_for_user(admin)
-    run('userdel %s' % admin)
-    run('rm -fr %(admin_home_dir)s' % env)
+    sudo('userdel %s' % admin)
+    sudo('rm -fr %(admin_home_dir)s' % env)
 
 
 @task
